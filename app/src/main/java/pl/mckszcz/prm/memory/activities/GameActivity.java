@@ -1,5 +1,6 @@
 package pl.mckszcz.prm.memory.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TableLayout;
@@ -56,6 +57,8 @@ public class GameActivity extends AppCompatActivity {
                 }
             }
             if (isGameOver()) {
+                Intent intent = new Intent(this, WinActivity.class);
+                startActivity(intent);
                 finish();
             }
         }).start();
