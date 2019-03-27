@@ -30,7 +30,7 @@ public class Card extends AppCompatImageView {
         setLayoutParams(params);
         setImageResource(R.drawable.unknown);
     }
-    
+
     public int getImage(CardType cardType) {
         switch (cardType) {
             case BANG:
