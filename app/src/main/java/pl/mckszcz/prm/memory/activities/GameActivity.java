@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -24,14 +25,16 @@ public class GameActivity extends AppCompatActivity {
 
     private List<Card> cardList;
     private List<Row> rowList;
-    private Card selectedCard;
+    private Vector<Card> selectedCard;
     private Card cardOne;
     private Card cardTwo;
+    private boolean isGameOver = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        selectedCard = new Vector<>(2);
         createBoard(6);
     }
 
@@ -78,33 +81,39 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void addListeners() {
-        cardList.forEach(card -> {
-            card.setOnClickListener(l -> {
-                selectedCard = card;
-                card.setImageResource(card.getImage(card.getCardType()));
-                Timer t = new Timer();
-                t.schedule(new TimerTask() {
+        cardList.forEach(card -> card.setOnClickListener(v -> {
+            Thread t;
+            t = new Thread(() -> {
+                if (!card.isMatched()) {
+                    card.setImageResource(card.getImage(card.getCardType()));
+                }
+                if (selectedCard.size() == 0) {
+                    selectedCard.add(card);
+                    cardOne = selectedCard.get(0);
+                } else if (selectedCard.size() == 1 && selectedCard.get(0) != card) {
+                    selectedCard.add(card);
+                    cardTwo = selectedCard.get(1);
+                }
+                if (cardOne != null && cardTwo != null) {
+                    if (cardOne.getCardType().equals(cardTwo.getCardType())) {
+                        cardOne.setMatched(true);
+                        cardTwo.setMatched(true);
+                    }
+                    cardOne = null;
+                    cardTwo = null;
+                    selectedCard.clear();
+                }
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
-                        if (cardOne == null && cardTwo == null) {
-                            cardOne = selectedCard;
-                            System.out.println("Card one: " + cardOne.getCardType());
-                        } else if (cardOne != null && cardOne != selectedCard && cardTwo == null) {
-                            cardTwo = selectedCard;
-                            System.out.println("Card two: " + cardTwo.getCardType());
-                            if (cardOne.getCardType() == cardTwo.getCardType()) {
-                                card.setMatched(true);
-                                System.out.println(card.getCardType() + " " + card.isMatched());
-                            }
-                        }
-                        if (!card.isMatched())
+                        if (!card.isMatched()) {
                             card.setImageResource(R.drawable.unknown);
-                        cardOne = null;
-                        cardTwo = null;
+                        }
                     }
                 }, 2000);
             });
-        });
+            t.start();
+        }));
     }
-
 }
