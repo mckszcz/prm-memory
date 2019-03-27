@@ -45,6 +45,20 @@ public class GameActivity extends AppCompatActivity {
         fillRows();
         rowList.forEach(layout::addView);
         addListeners();
+        addGameWatcher();
+    }
+
+    private void addGameWatcher() {
+        new Thread(() -> {
+            while (!isGameOver()) {
+                if (cardList.stream().allMatch(Card::isMatched)) {
+                    setGameOver(true);
+                }
+            }
+            if (isGameOver()) {
+                finish();
+            }
+        }).start();
     }
 
     private void createCards(int pairNumber) {
