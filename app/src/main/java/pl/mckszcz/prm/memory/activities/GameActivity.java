@@ -2,10 +2,16 @@ package pl.mckszcz.prm.memory.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import com.google.common.collect.Lists;
+
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,12 +30,16 @@ import pl.mckszcz.prm.memory.model.Row;
 @Setter
 public class GameActivity extends AppCompatActivity {
 
+    private TextView gameClock;
     private List<Card> cardList;
     private List<Row> rowList;
     private Vector<Card> selectedCard;
     private Card cardOne;
     private Card cardTwo;
     private boolean isGameOver = false;
+    private int i = 0;
+    final Runnable timeUpdater = () -> getGameClock().setText(String.valueOf(i));
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +47,18 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
         selectedCard = new Vector<>(2);
         createBoard(6);
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                updateClock();
+            }
+        }, 0, 1000);
     }
 
     private void createBoard(int pairNumber) {
         TableLayout layout = findViewById(R.id.tableLayout);
+        createClock(layout);
         createRows(pairNumber);
         createCards(pairNumber);
         fillRows();
@@ -49,18 +67,31 @@ public class GameActivity extends AppCompatActivity {
         addGameWatcher();
     }
 
+    private void updateClock() {
+        i++;
+        handler.post(timeUpdater);
+    }
+
     private void addGameWatcher() {
         new Thread(() -> {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+
             while (!isGameOver()) {
                 if (cardList.stream().allMatch(Card::isMatched)) {
                     setGameOver(true);
                 }
             }
+
             if (isGameOver()) {
+                Long timeElapsed = stopWatch.getTime();
+                stopWatch.stop();
                 Intent intent = new Intent(this, WinActivity.class);
+                intent.putExtra("timeElapsed", timeElapsed);
                 startActivity(intent);
                 finish();
             }
+
         }).start();
     }
 
@@ -95,6 +126,16 @@ public class GameActivity extends AppCompatActivity {
         for (int i = 0; i < rowList.size(); i++) {
             rowList.get(i).addToRow(list.get(i));
         }
+    }
+
+    private void createClock(TableLayout layout) {
+        TableRow clockRow = new TableRow(this);
+        clockRow.setPadding(200, 200, 200, 200);
+        clockRow.setGravity(Gravity.CENTER);
+        gameClock = new TextView(this);
+        gameClock.setTextSize(25);
+        clockRow.addView(gameClock);
+        layout.addView(clockRow);
     }
 
     private void addListeners() {

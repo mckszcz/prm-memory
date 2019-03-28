@@ -35,6 +35,7 @@
         android:background="@drawable/rounded_button_exit"
         android:onClick="exit"
         android:text="Exit"
+        android:textColor="#ffffff"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#cddc39</color>
-    <color name="colorPrimaryDark">#99aa00</color>
+    <color name="colorPrimary">#344955</color>
+    <color name="colorPrimaryDark">#232F34</color>
     <color name="colorAccent">#D81B60</color>
-    <color name="colorButton">#ffff6e</color>
-    <color name="colorExitButton">#99aa00</color>
+    <color name="colorButton">#F9AA33</color>
+    <color name="colorExitButton">#4A6572</color>
     <color name="colorPopupBackround">#37474f</color>
 </resources>
